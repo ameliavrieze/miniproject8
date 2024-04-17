@@ -69,7 +69,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
        * The cursor is between neighboring values, so we start links
        * to the previous and next value..
        */
-      Node2<T> prev = SimpleCDLL.this.dummy.prev;
+      Node2<T> prev = SimpleCDLL.this.dummy;
       Node2<T> next = SimpleCDLL.this.dummy.next;
 
       /**
@@ -102,8 +102,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
         // Update the position.  (See SimpleArrayList.java for more of
         // an explanation.)
         ++this.pos;
-        ++SimpleCDLL.this.changes;
-        ++this.changes;
+        updateChanges();
       } // add(T)
 
       public boolean hasNext() {
@@ -177,8 +176,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
 
         // Note that no more updates are possible
         this.update = null;
-        ++SimpleCDLL.this.changes;
-        ++this.changes;
+        updateChanges();
       } // remove()
 
       public void set(T val) {
@@ -195,6 +193,11 @@ public class SimpleCDLL<T> implements SimpleList<T> {
         if (SimpleCDLL.this.changes != this.changes) {
           throw new ConcurrentModificationException();
         }
+      }
+
+      void updateChanges() {
+        ++SimpleCDLL.this.changes;
+        ++this.changes;
       }
 
     };
