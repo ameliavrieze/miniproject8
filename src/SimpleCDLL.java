@@ -24,6 +24,12 @@ public class SimpleCDLL<T> implements SimpleList<T> {
    */
   int size;
 
+  /**
+   * The number of changes made to the list so far
+   */
+
+   int changes;
+
   // +--------------+------------------------------------------------------
   // | Constructors |
   // +--------------+
@@ -35,6 +41,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
     this.dummy.prev = dummy;
     this.dummy.next = dummy;
     this.size = 0;
+    this.changes = 0;
   } // SimpleDLL
 
   // +-----------+---------------------------------------------------------
@@ -62,21 +69,31 @@ public class SimpleCDLL<T> implements SimpleList<T> {
        * The cursor is between neighboring values, so we start links
        * to the previous and next value..
        */
-      Node2<T> prev = SimpleCDLL.this.dummy;
-      Node2<T> next = SimpleCDLL.this.dummy;
+      Node2<T> prev = SimpleCDLL.this.dummy.prev;
+      Node2<T> next = SimpleCDLL.this.dummy.next;
 
       /**
        * The node to be updated by remove or set.  Has a value of
        * null when there is no such value.
        */
-      Node2<T> update = null;
+      Node2<T> update;
+
+      /**
+       * Number of changes at time of creation of the iterator
+       * Only changes made by this iterator instance update the value
+       */
+       int changes = SimpleCDLL.this.changes;
 
       // +---------+-------------------------------------------------------
       // | Methods |
       // +---------+
 
       public void add(T val) throws UnsupportedOperationException {
-          this.prev = this.prev.insertAfter(val);
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
+
+        this.prev = this.prev.insertAfter(val);
 
         // Note that we cannot update
         this.update = null;
@@ -87,17 +104,28 @@ public class SimpleCDLL<T> implements SimpleList<T> {
         // Update the position.  (See SimpleArrayList.java for more of
         // an explanation.)
         ++this.pos;
+        ++SimpleCDLL.this.changes;
+        ++this.changes;
       } // add(T)
 
       public boolean hasNext() {
-        return (this.pos < SimpleCDLL.this.size);
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
+        return this.next != SimpleCDLL.this.dummy;
       } // hasNext()
 
       public boolean hasPrevious() {
-        return (this.pos > 0);
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
+        return this.prev != SimpleCDLL.this.dummy;
       } // hasPrevious()
 
       public T next() {
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
         if (!this.hasNext()) {
          throw new NoSuchElementException();
         } // if
@@ -121,6 +149,9 @@ public class SimpleCDLL<T> implements SimpleList<T> {
       } // prevIndex
 
       public T previous() throws NoSuchElementException {
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
         if (!this.hasPrevious())
           throw new NoSuchElementException();
 
@@ -133,6 +164,9 @@ public class SimpleCDLL<T> implements SimpleList<T> {
       } // previous()
 
       public void remove() {
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
         // Sanity check
         if (this.update == null) {
           throw new IllegalStateException();
@@ -153,9 +187,14 @@ public class SimpleCDLL<T> implements SimpleList<T> {
 
         // Note that no more updates are possible
         this.update = null;
+        ++SimpleCDLL.this.changes;
+        ++this.changes;
       } // remove()
 
       public void set(T val) {
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
         // Sanity check
         if (this.update == null) {
           throw new IllegalStateException();
@@ -163,6 +202,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
         // Do the real work
         this.update.value = val;
       } // set(T)
+
     };
   } // listIterator()
 
