@@ -89,9 +89,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
       // +---------+
 
       public void add(T val) throws UnsupportedOperationException {
-        if (SimpleCDLL.this.changes != this.changes) {
-          throw new ConcurrentModificationException();
-        }
+        failFast();
 
         this.prev = this.prev.insertAfter(val);
 
@@ -109,23 +107,17 @@ public class SimpleCDLL<T> implements SimpleList<T> {
       } // add(T)
 
       public boolean hasNext() {
-        if (SimpleCDLL.this.changes != this.changes) {
-          throw new ConcurrentModificationException();
-        }
+        failFast();
         return this.next != SimpleCDLL.this.dummy;
       } // hasNext()
 
       public boolean hasPrevious() {
-        if (SimpleCDLL.this.changes != this.changes) {
-          throw new ConcurrentModificationException();
-        }
+        failFast();
         return this.prev != SimpleCDLL.this.dummy;
       } // hasPrevious()
 
       public T next() {
-        if (SimpleCDLL.this.changes != this.changes) {
-          throw new ConcurrentModificationException();
-        }
+        failFast();
         if (!this.hasNext()) {
          throw new NoSuchElementException();
         } // if
@@ -141,17 +133,17 @@ public class SimpleCDLL<T> implements SimpleList<T> {
       } // next()
 
       public int nextIndex() {
+        failFast();
         return this.pos;
       } // nextIndex()
 
       public int previousIndex() {
+        failFast();
         return this.pos - 1;
       } // prevIndex
 
       public T previous() throws NoSuchElementException {
-        if (SimpleCDLL.this.changes != this.changes) {
-          throw new ConcurrentModificationException();
-        }
+        failFast();
         if (!this.hasPrevious())
           throw new NoSuchElementException();
 
@@ -164,9 +156,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
       } // previous()
 
       public void remove() {
-        if (SimpleCDLL.this.changes != this.changes) {
-          throw new ConcurrentModificationException();
-        }
+        failFast();
         // Sanity check
         if (this.update == null) {
           throw new IllegalStateException();
@@ -192,9 +182,7 @@ public class SimpleCDLL<T> implements SimpleList<T> {
       } // remove()
 
       public void set(T val) {
-        if (SimpleCDLL.this.changes != this.changes) {
-          throw new ConcurrentModificationException();
-        }
+        failFast();
         // Sanity check
         if (this.update == null) {
           throw new IllegalStateException();
@@ -202,6 +190,12 @@ public class SimpleCDLL<T> implements SimpleList<T> {
         // Do the real work
         this.update.value = val;
       } // set(T)
+
+      void failFast() {
+        if (SimpleCDLL.this.changes != this.changes) {
+          throw new ConcurrentModificationException();
+        }
+      }
 
     };
   } // listIterator()
