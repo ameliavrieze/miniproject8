@@ -2,7 +2,7 @@ import java.io.PrintWriter;
 
 /**
  * Some simple experiments with SimpleCDLLs
- * @author Sam Rebelsky
+ * @author Samuel A. Rebelsky
  */
 public class SCDLLExpt {
   public static void main(String[] args) throws Exception {

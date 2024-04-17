@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 /**
  * Simple circular doubly-linked lists.
  *
- * @author Sam Rebelsky
+ * @author Samuel A. Rebelsky
  * @author Amelia Vrieze
  */
 public class SimpleCDLL<T> implements SimpleList<T> {

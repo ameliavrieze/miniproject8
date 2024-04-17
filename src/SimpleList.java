@@ -3,7 +3,7 @@ import java.util.ListIterator;
 
 /**
  * Very simple lists.
- * @author Sam Rebelsky
+ * @author Samuel A. Rebelsky
  */
 public interface SimpleList<T> extends Iterable<T> {
   public Iterator<T> iterator();
